@@ -1,3 +1,9 @@
+/*
+ * 사이트: HackerRank.com
+ * 이름  : Drawing Book
+ * 난이도: Easy
+ * Link  : https://www.hackerrank.com/contests/w27/challenges/drawing-book
+ */
 #include <stdio.h>
 
 int checkAtFront(int endp, int wantp)

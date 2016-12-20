@@ -1,4 +1,8 @@
 /*
+ * 사이트: HackerRank.com
+ * 이름  : Tailor Shop
+ * 난이도: Easy
+ * Link  : https://www.hackerrank.com/contests/w27/challenges/tailor-shop
  * 아직 문제를 풀지 못했습니다!
  */
 

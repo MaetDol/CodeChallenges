@@ -1,4 +1,8 @@
 /*
+ * 사이트: HackerRank.com
+ * 이름  : Breadth First Search: Shortest Reach
+ * 난이도: Medium
+ * Link  : https://www.hackerrank.com/challenges/bfsshortreach?h_r=internal-search
  * 아직 문제를 풀지 못했습니다!
  */
 
