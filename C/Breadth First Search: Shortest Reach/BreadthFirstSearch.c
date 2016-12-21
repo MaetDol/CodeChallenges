@@ -9,25 +9,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define TRUE     1
+#define FALSE    0
 #define DISTANCE 6
+#define NEW_LINE 13
 
-typedef struct
+typedef struct Node
 {
   int num;
-  int dis;
-  int chdLen;
+  int childLen;
   int* childes;
   struct Node* parent;
 }Node;
+
+void addChild(Node*, int);
+Node* newNode(int);
+int goBackToStart(Node*);
+int readInput(Node**, int);
+int getDistance(Node*);
 
 Node* newNode(int n)
 {
   Node* node = (Node*)malloc(sizeof(Node));
   node -> num = n;
-  node -> dis = 0;
   node -> parent = NULL;
-  node -> childes = (int*)malloc(sizeof(int));
-  node -> chdLen = 0;
+  node -> childes = NULL;
+  node -> childLen = 0;
 
   return node;
 }
@@ -47,33 +54,105 @@ int goBackToStart(Node* node)
   return cntGoBack * DISTANCE;
 }
 
-int readInput(Node** nlist)
+int readInput(Node** nlist, int isLast)
 {
-  const int NEW_LINE = 13; // \n
   int pn, cn; // Parent number, Child number
   char gap;
 
-  while (1)
+  while (isLast == FALSE)
   {
-    scanf("%d" &pn);
+    scanf("%d", &pn);
     gap = getchar();
     if (gap == NEW_LINE)
-      return pn;
-    scanf("%d" &cn);
+      return pn - 1;
+
+    scanf("%d", &cn);
     getchar();
 
+    pn -= 1;
+    cn -= 1;
     nlist[cn] -> parent = nlist[pn];
+    addChild(nlist[pn], cn);
+  }
+  
+  while (isLast == TRUE)
+  {
+    pn = -1;
+    cn = -1;
+
+    scanf("%d %d", &pn, &cn);
+    if (cn == -1)
+      return pn - 1;
+    
+    pn -= 1;
+    cn -= 1;
+    nlist[cn] -> parent = nlist[pn];
+    addChild(nlist[pn], cn);
+  }
+  return -1; // Error. 'isLast' value is wrong.
+}
+
+void addChild(Node* n, int val)
+{
+  int len = n -> childLen;
+
+  if (len == 0)
+  {
+    n -> childes = (int*)malloc(sizeof(int));
+    n -> childes[0] = val;
+    n -> childLen = 1;
+    return;
+  }
+  else
+  {
+    n -> childes = (int*)realloc(n -> childes, sizeof(int) * (len +1));
+    n -> childes[len] = val;
+    n -> childLen = len + 1;
+    return;
   }
 }
 
-int addToList(int* list, int len, int val)
+int getDistance(Node* n, int startNode)
 {
-  list = (int*)realloc(list, sizeof(list)+1);
-  list[len] = val;
-  return len + 1;
+  int generation = 0;
+
+  while (n -> parent != NULL)
+  {
+    n = n -> parent;
+    generation ++;
+  }
+  
+  if (generation == 0 || n -> num != startNode)
+    return -1;
+  else
+    return generation * DISTANCE;
 }
 
-main()
+void printTree(Node** nlist, int len)
+{
+  printf("Start print\n");
+
+  for (int i = 0; i < len; i++)
+  {
+    Node* n = nlist[i];
+    Node* p = n -> parent;
+    int pnum = 0;
+    if (p != NULL)
+      pnum = (p -> num) + 1;
+    
+    printf("----------------\n"
+           "Node Number: %d\n"
+           "     Parent: %d\n"
+           "      Child: ", i+1, pnum);
+
+    for (int k = 0; k < n -> childLen; k++)
+      printf("%d ", (n -> childes[k]) + 1);
+
+    printf("\n----------------\n");
+  }
+}
+
+int main()
 {
   int q;
   scanf("%d", &q);
@@ -82,15 +161,31 @@ main()
   {
     int n, edge, fn;
 
-    scanf("%d" &n);
+    scanf("%d", &n);
     getchar();
     scanf("%d", &edge);
     getchar();
 
     Node** nlist = (Node**)malloc(sizeof(Node*) * n);
     for (int i = 0; i < n; i++)
-      *nlist[i] = newNode(i);
+      nlist[i] = newNode(i);
 
-    fn = readInput(nlist);
+    if (qi == q-1)
+      fn = readInput(nlist, TRUE);
+    else
+      fn = readInput(nlist, FALSE);
+    
+    for (int i = 0; i < n; i++)
+    {
+      if (i == fn)
+        continue;
+
+      printf("%d ", getDistance(nlist[i], fn));
+    }
+    putchar('\n');
+
+    printTree(nlist, n); // For debugging
   }
+  
+  return 0;
 }
