@@ -17,41 +17,25 @@
 typedef struct Node
 {
   int num;
-  int childLen;
-  int* childes;
-  struct Node* parent;
+  int dis;
+  int listLen;
+  int *linkList;
 }Node;
 
-void addChild(Node*, int);
+void addList(Node*, int);
 Node* newNode(int);
-int goBackToStart(Node*);
 int readInput(Node**, int);
-int getDistance(Node*);
+void calculateDistance(Node**, Node*, int);
 
 Node* newNode(int n)
 {
   Node* node = (Node*)malloc(sizeof(Node));
   node -> num = n;
-  node -> parent = NULL;
-  node -> childes = NULL;
-  node -> childLen = 0;
+  node -> dis = -1;
+  node -> linkList = NULL;
+  node -> listLen = 0;
 
   return node;
-}
-
-int goBackToStart(Node* node)
-{
-  int cntGoBack = 0;
-
-  while (node -> parent != NULL)
-  {
-    node = node -> parent;
-    cntGoBack ++;
-  }
-
-  if (cntGoBack == 0)
-    return -1;
-  return cntGoBack * DISTANCE;
 }
 
 int readInput(Node** nlist, int isLast)
@@ -71,8 +55,8 @@ int readInput(Node** nlist, int isLast)
 
     pn -= 1;
     cn -= 1;
-    nlist[cn] -> parent = nlist[pn];
-    addChild(nlist[pn], cn);
+    addList(nlist[cn], pn);
+    addList(nlist[pn], cn);
   }
   
   while (isLast == TRUE)
@@ -86,70 +70,45 @@ int readInput(Node** nlist, int isLast)
     
     pn -= 1;
     cn -= 1;
-    nlist[cn] -> parent = nlist[pn];
-    addChild(nlist[pn], cn);
+    addList(nlist[cn], pn);
+    addList(nlist[pn], cn);
   }
   return -1; // Error. 'isLast' value is wrong.
 }
 
-void addChild(Node* n, int val)
+void addList(Node* n, int val)
 {
-  int len = n -> childLen;
+  int len = n -> listLen;
 
   if (len == 0)
   {
-    n -> childes = (int*)malloc(sizeof(int));
-    n -> childes[0] = val;
-    n -> childLen = 1;
+    n -> linkList = (int*)malloc(sizeof(int));
+    n -> linkList[0] = val;
+    n -> listLen = 1;
     return;
   }
   else
   {
-    n -> childes = (int*)realloc(n -> childes, sizeof(int) * (len +1));
-    n -> childes[len] = val;
-    n -> childLen = len + 1;
+    n -> linkList = (int*)realloc(n -> linkList, sizeof(int) * (len +1));
+    n -> linkList[len] = val;
+    n -> listLen = len + 1;
     return;
   }
 }
 
-int getDistance(Node* n, int startNode)
+void calculateDistance(Node** nl, Node* node, int gen)
 {
-  int generation = 0;
-
-  while (n -> parent != NULL)
-  {
-    n = n -> parent;
-    generation ++;
-  }
-  
-  if (generation == 0 || n -> num != startNode)
-    return -1;
-  else
-    return generation * DISTANCE;
-}
-
-void printTree(Node** nlist, int len)
-{
-  printf("Start print\n");
-
+  node -> dis = gen * DISTANCE;
+  int len = node -> listLen;
   for (int i = 0; i < len; i++)
   {
-    Node* n = nlist[i];
-    Node* p = n -> parent;
-    int pnum = 0;
-    if (p != NULL)
-      pnum = (p -> num) + 1;
+    int index = node -> linkList[i];
+    int dis = nl[index] -> dis;
     
-    printf("----------------\n"
-           "Node Number: %d\n"
-           "     Parent: %d\n"
-           "      Child: ", i+1, pnum);
-
-    for (int k = 0; k < n -> childLen; k++)
-      printf("%d ", (n -> childes[k]) + 1);
-
-    printf("\n----------------\n");
+    if (dis == -1 || dis > (gen+1) * DISTANCE)
+      calculateDistance(nl, nl[index], gen+1);
   }
+  return;
 }
 
 int main()
@@ -175,16 +134,13 @@ int main()
     else
       fn = readInput(nlist, FALSE);
     
+    calculateDistance(nlist, nlist[fn], 0);
+    
     for (int i = 0; i < n; i++)
-    {
-      if (i == fn)
-        continue;
-
-      printf("%d ", getDistance(nlist[i], fn));
-    }
+      if (i != fn)
+        printf("%d ", nlist[i] -> dis);
+    
     putchar('\n');
-
-    printTree(nlist, n); // For debugging
   }
   
   return 0;
