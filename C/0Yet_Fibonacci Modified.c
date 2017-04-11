@@ -5,7 +5,7 @@
 #define SIZE 50000
 
 void aAddB (char a[], char b[], char result[]);
-void aTimesB (char a[], char b[], char result[]);
+void squared (char a[], char result[]);
 void print (char a[]);
 void fibonacciModified (int n);
 int getStartIndex (char a[]);
@@ -63,11 +63,7 @@ void aAddB (char a[], char b[], char result[])
 {
   memset (result, '0', SIZE);
 
-  int tmp = getStartIndex (a);
-  int tmp2 = getStartIndex (b);
-  int end = (tmp < tmp2)? tmp : tmp2;
-
-  for (int i = SIZE-1; i >= end; i--) {
+  for (int i = SIZE-1; i > 0; i--) {
     int add = (a[i] - '0') + (b[i] - '0') + (result[i] - '0');
     result[i] = (add % 10) + '0';
 
@@ -75,38 +71,30 @@ void aAddB (char a[], char b[], char result[])
   }
 }
 
-void aTimesB (char a[], char b[], char result[])
+void squared (char a[], char result[])
 {
-  char tmp[SIZE], tmp2[SIZE];
-  memset (tmp2, 0, SIZE);
   memset (result, '0', SIZE);
 
-  int endA = getStartIndex (a);
-  int endB = getStartIndex (b);
+  int end = getStartIndex (a);
 
-  for (int b_i=SIZE-1; b_i >= endB; b_i--) {
-    memset (tmp, '0', SIZE);
-    
+  for (int b_i=SIZE-1; b_i >= end; b_i--) {
     int a_i = SIZE - 1;
-    int tmp_i = a_i - (SIZE-1 - b_i);
-    while (a_i >= endA) {
-      int times = (a[a_i] - '0') * (b[b_i] - '0') + (tmp[tmp_i] - '0');
-      tmp[tmp_i] = times % 10 + '0';
-      tmp[tmp_i-1] += times / 10;
+    int r_i = b_i;
+    while (a_i >= end) {
+      int times = (a[a_i] - '0') * (a[b_i] - '0') + (result[r_i] - '0');
+      result[r_i] = times % 10 + '0';
+      result[r_i-1] += times / 10;
 
       a_i--;
-      tmp_i--;
+      r_i--;
     }
-
-    strncpy (tmp2, result, SIZE);
-    aAddB (tmp, tmp2, result);
   }
 }
 
 void fibonacciModified (int n)
 {
   char tmp[SIZE];
-  aTimesB (t2, t2, tmp);
+  squared (t2, tmp);
   aAddB (t1, tmp, t3); 
 
   if (n == 2)
